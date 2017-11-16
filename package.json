@@ -1,0 +1,28 @@
+{
+  "name": "keepers-worker",
+  "version": "1.0.0",
+  "description": "Document tracker to unclutter the kitchen counter - indexer worker.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "test/test_all.js"
+  },
+  "author": "Matt Miller",
+  "dependencies": {
+    "amqplib": "^0.5.1",
+    "bluebird": "^3.5.1",
+    "elasticsearch": "^14.0.0",
+    "node-tesseract": "^0.2.7"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.5.4",
+    "@types/chai": "^4.0.4",
+    "@types/elasticsearch": "^5.0.17",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.46",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.7.0",
+    "typescript": "^2.6.0"
+  }
+}

@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "allowJs": false,
+        "outDir": "dist",
+        "rootDirs": ["src", "test", "../../keepers-server/src/"],
+        "lib": [
+            "es2015"
+        ]
+    },
+    "include": [
+        "src/**/*.ts",
+        "test/**/*.ts"
+    ]
+}
