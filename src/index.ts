@@ -8,30 +8,34 @@ import { processor } from './processor';
 
 const config = new Config();
 const queuer = new Queuer(config);
+console.log("Worker listening for documents to index...");
 queuer.startWorking<QueueForIndexingMessage>(config.readyToIndexQueueName, async (item, done, error) => {
     const workingPath = path.join(config.workerWorkingDirectory, `${item.id}.jpg`);
-    if (!item.document.bytes || item.document.bytes.length === 0) {
-        item.document.bytes = fs.readFileSync("C:\\Users\\matt.miller\\Pictures\\Capture.PNG");
-    }
+    item.document.bytes = Buffer.from(item.document.image_enc, "base64");
+
     fs.writeFile(workingPath, item.document.bytes, async (err) => {
         if (err) {
             queuer.broadcastMessage(new ErrorMessage(err), config.documentIndexedFailedExchangeName);
+            error(err.message);
             return;
         }
         const text = await processor(workingPath);
-        item.document.text = text;
+        item.document.text = text.replace(/\n/g, " ");
         // Since we've ocr'd it ok, copy it to it's final resting place
         const client = new Client({ host: config.elasticSearchUrl, log: "trace" });
         const result = await client.index(
             {
                 index: 'documents',
                 type: 'document',
-                id: item.document.id,
+                id: item.id,
                 body: {
-                    text,
-                    image: item.document.bytes,
+                    text: item.document.text,
+                    image: item.document.image_enc,
                 },
             });
+        const itemWithoutImage = Object.assign({}, item);
+        item.document.bytes = null;
+        item.document.image_enc = "";
         queuer.broadcastMessage(new IndexingFinishedMessage(item), config.documentIndexedExchangeName);
         done();
     });
