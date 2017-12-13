@@ -21,8 +21,9 @@ queuer.startWorking<QueueForIndexingMessage>(config.readyToIndexQueueName, async
         }
         const text = await processor(workingPath);
         item.document.text = text.replace(/\n/g, " ");
-        // Since we've ocr'd it ok, copy it to it's final resting place
+
         const client = new Client({ host: config.elasticSearchUrl, log: "trace" });
+
         const result = await client.index(
             {
                 index: 'documents',
@@ -31,10 +32,9 @@ queuer.startWorking<QueueForIndexingMessage>(config.readyToIndexQueueName, async
                 body: {
                     text: item.document.text,
                     image: item.document.image_enc,
+                    tags: item.document.tags,
                 },
             });
-        const itemWithoutImage = Object.assign({}, item);
-        item.document.bytes = null;
         item.document.image_enc = "";
         queuer.broadcastMessage(new IndexingFinishedMessage(item), config.documentIndexedExchangeName);
         done();
