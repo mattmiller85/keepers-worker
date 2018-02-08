@@ -11,9 +11,9 @@ const queuer = new Queuer(config);
 console.log("Worker listening for documents to index...");
 queuer.startWorking<QueueForIndexingMessage>(config.readyToIndexQueueName, async (item, done, error) => {
     const workingPath = path.join(config.workerWorkingDirectory, `${item.id}.jpg`);
-    item.document.bytes = Buffer.from(item.document.image_enc, "base64");
+    const bytes = Buffer.from(item.document.image_enc, "base64");
 
-    fs.writeFile(workingPath, item.document.bytes, async (err) => {
+    fs.writeFile(workingPath, bytes, async (err) => {
         if (err) {
             queuer.broadcastMessage(new ErrorMessage(err), config.documentIndexedFailedExchangeName);
             error(err.message);
@@ -33,6 +33,7 @@ queuer.startWorking<QueueForIndexingMessage>(config.readyToIndexQueueName, async
                     text: item.document.text,
                     image: item.document.image_enc,
                     tags: item.document.tags,
+                    created: new Date().toISOString(),
                 },
             });
         item.document.image_enc = "";
